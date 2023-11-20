@@ -9,7 +9,7 @@ export default function Home({ score, setScore }) {
   const hasPlayed = score > 0;
   return (
     <div className="flex flex-col items-center gap-24 w-screen h-screen px-4 pt-[5%]">
-      <div>
+      <div className='text-center px-2 space-y-4'>
         <div id="label">
           {current.split('').map((letter, index) => (
             <span
@@ -23,12 +23,16 @@ export default function Home({ score, setScore }) {
         </div>
         <h1 className='text-xl font-Catamaran'>Guess the highest market value!</h1>
       </div>
-      <button type="button">
+      <button type="button" className='capitalize py-2.5 px-5 mr-2 mb-2 text-2xl font-bold
+       tracking-wide text-white focus:outline-none bg-transparent rounded-lg border border-gray-200
+        hover:bg-blue-500 focus:z-10 focus:ring-1 focus:ring-gray-200'>
         <Link href={''} onClick={() => setScore(0)}>
           {hasPlayed ? 'PLAY AGAIN' : 'PLAY'}
         </Link>
       </button>
-      {hasPlayed && (<div>Total Points: {score}</div>)}
+      <div>
+        {hasPlayed && (<div>Total Points: {score}</div>)}
+      </div>
     </div>
   )
 }
