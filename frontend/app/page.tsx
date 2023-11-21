@@ -26,7 +26,7 @@ export default function Home({ score, setScore }) {
       <button type="button" className='capitalize py-2.5 px-5 mr-2 mb-2 text-2xl font-bold
        tracking-wide text-white focus:outline-none bg-transparent rounded-lg border border-gray-200
         hover:bg-blue-500 focus:z-10 focus:ring-1 focus:ring-gray-200'>
-        <Link href={''} onClick={() => setScore(0)}>
+        <Link href={'/top_company'} onClick={() => setScore(0)}>
           {hasPlayed ? 'PLAY AGAIN' : 'PLAY'}
         </Link>
       </button>
