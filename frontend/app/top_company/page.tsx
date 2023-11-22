@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import React, { useRef, useState } from 'react'
+import useSWR from 'swr';
+import { getData } from '../getData';
 
 type Props = {}
 
@@ -14,9 +16,7 @@ export default function page({ score, setScore }) {
     const rankView = useRef(null);
     const indicator = useRef(null);
 
-    const { data: state, isLoading, isError } = useQuery({
-        queryKey: ['companies'], queryFn: () => (100), retry: false
-    });
+    const { data: state, isLoading, error } = useSWR('/api/companies/', getData);
 
     const calculate = (answer) => {
         leftContainer.current.dataset.slide = 'show';
@@ -66,33 +66,44 @@ export default function page({ score, setScore }) {
                         className='flex'
                     />)}
                 <h2>
-                    {/* rank */}
+                    {state[currentIndex - 1]?.rank}
                 </h2>
                 <div className=''>
-                    {/* organization name */}
+                    {state[currentIndex - 1]?.organizationName}
                 </div>
                 <button className='rounded-md py-2 px-6 text-white text-xl font-semibold'>
                     Next</button>
             </div>
-            <div id="right-side"
+            <div id="right-side" data-slide="show" ref={rightContainer}
                 className='bg-black h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
-                <img /* company-logo */ />
-                <h2>
-                    {/* rank */}
+                {state[currentIndex]?.imageExists && (
+                    <img
+                        src={state[currentIndex].image}
+                        alt={state[currentIndex].description}
+                        className='flex'
+                    />
+                )}
+                <h2
+                    ref={rankView}
+                    className='text-2xl'
+                >
+                    {state[currentIndex]?.rank}
                 </h2>
-                <div>
-                    {/* organization name */}
+                <div className='text-xl'>
+                    {state[currentIndex]?.organizationName}
                 </div>
-                <div>
-                    <button className='bg-green-500/75 rounded-md py-2 px-6 text-white text-xl font-semibold'>
+                <div ref={voteButtons} className='flex'>
+                    <button className='bg-green-500/75 rounded-md py-2 px-6 text-white text-xl font-semibold'
+                        onClick={() => calculate('higher')}>
                         Higher
                     </button>
-                    <button className='bg-red-500/75 rounded-md py-2 px-6 text-white text-xl font-semibold'>
+                    <button className='bg-red-500/75 rounded-md py-2 px-6 text-white text-xl font-semibold'
+                        onClick={() => calculate('lower')}>
                         Lower
                     </button>
                 </div>
                 <div>
-                    Score:
+                    Score: {score}
                 </div>
             </div>
         </div>
