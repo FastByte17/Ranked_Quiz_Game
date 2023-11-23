@@ -3,8 +3,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef } from 'react';
+import { useScoreContext } from './scoreProvider'
 
-export default function Home({ score, setScore }) {
+export default function Home() {
+  const { score, setScore } = useScoreContext()
   const { current } = useRef('ranked');
   const hasPlayed = score > 0;
   return (

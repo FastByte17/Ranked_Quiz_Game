@@ -1,6 +1,7 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest, res: Response) {
+
+export async function GET(request: NextRequest,) {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('limit');
 
@@ -16,12 +17,17 @@ export async function GET(request: NextRequest, res: Response) {
                 'notice_behavior=expressed,eu; notice_gdpr_prefs=0,1,2:1a8b5228dd7ff0717196863a5d28ce6c',
         },
     };
-    const response = await fetch(
+    const result = await fetch(
         `https://www.forbes.com/forbesapi/org/global2000/2022/position/true.json?limit=${limit}`,
         options
     );
 
-    const data = await res.json()
+    if (!result.ok) {
+        return NextResponse.json({ error: 'Error Fecthing Data' }, { status: 400 });
+    }
 
-    return Response.json({ data })
+    const data = await result.json()
+
+
+    return NextResponse.json({ data: data.organizationList.organizationsLists }, { status: 200 })
 }

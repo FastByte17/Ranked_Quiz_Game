@@ -1,28 +1,27 @@
 'use client'
-
 import Link from 'next/link';
-import React, { useRef, useState } from 'react'
+import React, { MutableRefObject, useRef, useState } from 'react'
 import useSWR from 'swr';
-import { getData } from '../getData';
+import { fetcher } from '../fetcher';
+import { useScoreContext } from '../scoreProvider'
 
-type Props = {}
-
-export default function page({ score, setScore }) {
-
+export default function page() {
+    const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher);
+    const { score, setScore } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
-    const leftContainer = useRef(null);
-    const rightContainer = useRef(null);
-    const voteButtons = useRef(null);
-    const rankView = useRef(null);
-    const indicator = useRef(null);
+    const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
+    const rightContainer = useRef() as MutableRefObject<HTMLDivElement>;
+    const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
+    const rankView = useRef() as MutableRefObject<HTMLDivElement>;
+    const indicator = useRef() as MutableRefObject<HTMLDivElement>;
 
-    const { data: state, isLoading, error } = useSWR('/api/companies/', getData);
+    const calculate = (answer: string) => {
+        if (!state) return
 
-    const calculate = (answer) => {
         leftContainer.current.dataset.slide = 'show';
         rightContainer.current.dataset.slide = 'show';
         voteButtons.current.style.visibility = 'hidden';
-        rankView.style.visibility = 'visible';
+        rankView.current.style.visibility = 'visible';
 
         if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
@@ -51,6 +50,12 @@ export default function page({ score, setScore }) {
             setScore((prev) => prev + 1);
         }, 1500)
     }
+
+    if (isLoading) return <h1>Loading...</h1>
+
+    if (error) return <p style={{ color: "red" }}>{JSON.stringify(error.message, undefined, 2)}</p>
+
+    if (!state) return null;
 
     return (
         <div className='h-screen flex overflow-hidden bg-gray-700'>
