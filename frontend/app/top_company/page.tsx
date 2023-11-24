@@ -1,12 +1,15 @@
 'use client'
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import useSWR from 'swr';
 import { fetcher } from '../fetcher';
 import { useScoreContext } from '../scoreProvider'
 
 export default function page() {
-    const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher);
+    const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
+        revalidateOnFocus: false
+    });
     const { score, setScore } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
     const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
@@ -14,6 +17,7 @@ export default function page() {
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
     const rankView = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
+    const router = useRouter()
 
     const calculate = (answer: string) => {
         if (!state) return
@@ -38,7 +42,7 @@ export default function page() {
 
         setTimeout(() => {
             if (indicator.current.dataset.state === 'wrong') {
-                return <Link href={'/'}></Link>;
+                return router.push('/');
             }
             leftContainer.current.dataset.slide = 'slide';
             rightContainer.current.dataset.slide = 'slide';
@@ -70,13 +74,13 @@ export default function page() {
                         alt={state[currentIndex - 1].description}
                         className='flex'
                     />)}
-                <h2>
+                <h2 className='font-bold text-white text-2xl'>
                     {state[currentIndex - 1]?.rank}
                 </h2>
-                <div className=''>
+                <div className='font-bold text-white text-xl'>
                     {state[currentIndex - 1]?.organizationName}
                 </div>
-                <button className='rounded-md py-2 px-6 text-white text-xl font-semibold'>
+                <button className='rounded-md py-2 px-6 text-white text-xl font-semibold invisible'>
                     Next</button>
             </div>
             <div id="right-side" data-slide="show" ref={rightContainer}
@@ -90,14 +94,14 @@ export default function page() {
                 )}
                 <h2
                     ref={rankView}
-                    className='text-2xl'
+                    className='text-2xl text-white font-bold invisible'
                 >
                     {state[currentIndex]?.rank}
                 </h2>
-                <div className='text-xl'>
+                <div className='text-xl text-white font-bold'>
                     {state[currentIndex]?.organizationName}
                 </div>
-                <div ref={voteButtons} className='flex'>
+                <div ref={voteButtons} className='flex flex-col gap-2'>
                     <button className='bg-green-500/75 rounded-md py-2 px-6 text-white text-xl font-semibold'
                         onClick={() => calculate('higher')}>
                         Higher
@@ -107,7 +111,7 @@ export default function page() {
                         Lower
                     </button>
                 </div>
-                <div>
+                <div className='absolute right-[2%] bottom-[5%] text-xl tracking-wide font-bold text-white'>
                     Score: {score}
                 </div>
             </div>

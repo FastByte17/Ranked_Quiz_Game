@@ -3,9 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
+  /* --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255; */
+
+  --transition-duration: 0.3s;
+  --transition-easing: cubic-bezier(0.5, 0, 0.5, 1);
+  --duration: 0.5s;
+  --stagger: 0.25s;
+  --interval: calc(var(--duration) - var(--stagger));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,10 +24,53 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
+  background: linear-gradient(to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+#left-container[data-slide='slide'],
+#right-container[data-slide='slide'] {
+  animation: slide-in 0.5s ease-in-out;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0.5;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.indicator {
+  position: absolute;
+  width: 100px;
+  aspect-ratio: 1/1;
+  background-color: purple;
+  text: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+  border-radius: 100%;
+  transition: all 0.5s ease-in-out;
+}
+
+.indicator[data-state='wrong'] {
+  background-color: red;
+  animation: rise-up 0.5s ease-in-out;
+}
+
+.indicator[data-state='correct'] {
+  background-color: green;
+  animation: rise-up 0.5s ease-in-out;
 }
