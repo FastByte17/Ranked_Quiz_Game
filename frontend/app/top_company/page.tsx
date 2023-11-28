@@ -5,6 +5,8 @@ import React, { MutableRefObject, useRef, useState } from 'react'
 import useSWR from 'swr';
 import { fetcher } from '../fetcher';
 import { useScoreContext } from '../scoreProvider'
+import LoadingCircle from '../components/LoadingCircle';
+import Alert from '../components/Alert';
 
 export default function page() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
@@ -18,6 +20,14 @@ export default function page() {
     const rankView = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
     const router = useRouter()
+
+    if (isLoading) {
+        return <LoadingCircle />;
+    }
+
+    if (error) {
+        return <Alert />
+    }
 
     const calculate = (answer: string) => {
         if (!state) return
@@ -72,7 +82,7 @@ export default function page() {
                     <img
                         src={state[currentIndex - 1].image}
                         alt={state[currentIndex - 1].description}
-                        className='flex'
+                        className='flex mb-12'
                     />)}
                 <h2 className='font-bold text-white text-2xl'>
                     {state[currentIndex - 1]?.rank}
@@ -89,12 +99,12 @@ export default function page() {
                     <img
                         src={state[currentIndex].image}
                         alt={state[currentIndex].description}
-                        className='flex'
+                        className='flex mt-1'
                     />
                 )}
                 <h2
                     ref={rankView}
-                    className='text-2xl text-white font-bold invisible'
+                    className='text-2xl text-white font-bold'
                 >
                     {state[currentIndex]?.rank}
                 </h2>

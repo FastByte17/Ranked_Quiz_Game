@@ -74,3 +74,23 @@ body {
   background-color: green;
   animation: rise-up 0.5s ease-in-out;
 }
+
+.spinner {
+  margin: 0;
+  position: relative;
+  width: 10px;
+  aspect-ratio: 1/1;
+  background: #15803d;
+  border-radius: 100%;
+  animation: slideup var(--duration) calc(var(--interval) * var(--i)) infinite alternate;
+}
+
+@keyframes rise-up {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  to {
+    clip-path: circle(50% at 50% 50%);
+  }
+}
