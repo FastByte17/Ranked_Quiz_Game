@@ -7,6 +7,7 @@ import { fetcher } from '../fetcher';
 import { useScoreContext } from '../scoreProvider'
 import LoadingCircle from '../components/LoadingCircle';
 import Alert from '../components/Alert';
+import Loader from '../components/Loader';
 
 export default function page() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
@@ -19,6 +20,7 @@ export default function page() {
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
     const rankView = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
+    const scoreStyle = useRef() as MutableRefObject<HTMLDivElement>;
     const router = useRouter()
 
     if (isLoading) {
@@ -39,15 +41,15 @@ export default function page() {
 
         if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
-            indicator.current.innerText = '✔️';
+            indicator.current.innerText = '👍';
         }
         else if (answer === 'lower' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
-            indicator.current.innerText = '✔️';
+            indicator.current.innerText = '👍';
         }
         else {
             indicator.current.dataset.state = 'wrong';
-            indicator.current.innerText = '❌';
+            indicator.current.innerText = '👎';
         }
 
         setTimeout(() => {
@@ -62,12 +64,14 @@ export default function page() {
             indicator.current.dataset.state = 'pending';
             indicator.current.innerText = 'vs';
             setScore((prev) => prev + 1);
+            scoreStyle.current.dataset.score = 'scale';
+
+            setTimeout(() => {
+                scoreStyle.current.dataset.score = 'null';
+            }, 1000)
+
         }, 1500)
     }
-
-    if (isLoading) return <h1>Loading...</h1>
-
-    if (error) return <p style={{ color: "red" }}>{JSON.stringify(error.message, undefined, 2)}</p>
 
     if (!state) return null;
 
@@ -82,7 +86,7 @@ export default function page() {
                     <img
                         src={state[currentIndex - 1].image}
                         alt={state[currentIndex - 1].description}
-                        className='flex mb-12'
+                        className='flex mt-1'
                     />)}
                 <h2 className='font-bold text-white text-2xl'>
                     {state[currentIndex - 1]?.rank}
@@ -99,7 +103,7 @@ export default function page() {
                     <img
                         src={state[currentIndex].image}
                         alt={state[currentIndex].description}
-                        className='flex mt-1'
+                        className='flex mt-14'
                     />
                 )}
                 <h2
@@ -121,7 +125,8 @@ export default function page() {
                         Lower
                     </button>
                 </div>
-                <div className='absolute right-[2%] bottom-[5%] text-xl tracking-wide font-bold text-white'>
+                <div className='absolute right-[2%] bottom-[5%] text-xl tracking-wide font-bold text-white'
+                    ref={scoreStyle}>
                     Score: {score}
                 </div>
             </div>

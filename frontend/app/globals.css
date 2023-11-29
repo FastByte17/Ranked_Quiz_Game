@@ -3,30 +3,20 @@
 @tailwind utilities;
 
 :root {
-  /* --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255; */
-
+  --foreground: black;
   --transition-duration: 0.3s;
   --transition-easing: cubic-bezier(0.5, 0, 0.5, 1);
-  --duration: 0.5s;
+  --duration: 1s;
   --stagger: 0.25s;
   --interval: calc(var(--duration) - var(--stagger));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
+
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  color: var(--foreground);
+  background: rgb(34, 193, 195);
+  background: linear-gradient(0deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
 }
 
 #left-container[data-slide='slide'],
@@ -50,8 +40,8 @@ body {
   position: absolute;
   width: 100px;
   aspect-ratio: 1/1;
-  background-color: purple;
-  text: white;
+  background-color: white;
+  text: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,15 +65,6 @@ body {
   animation: rise-up 0.5s ease-in-out;
 }
 
-.spinner {
-  margin: 0;
-  position: relative;
-  width: 10px;
-  aspect-ratio: 1/1;
-  background: #15803d;
-  border-radius: 100%;
-  animation: slideup var(--duration) calc(var(--interval) * var(--i)) infinite alternate;
-}
 
 @keyframes rise-up {
   from {
@@ -92,5 +73,57 @@ body {
 
   to {
     clip-path: circle(50% at 50% 50%);
+  }
+}
+
+.container {
+  background: transparent;
+  width: fit-content;
+  height: fit-content;
+  padding: 0.2em;
+  display: flex;
+  justify-content: center;
+  gap: 0.2em;
+}
+
+.circle {
+  margin: 0;
+  position: relative;
+  width: 100px;
+  aspect-ratio: 1/1;
+  border-radius: 100%;
+  animation: slideup var(--duration) calc(var(--interval) * var(--i)) infinite;
+}
+
+@keyframes slideup {
+  0% {
+    transform: translateY(0%);
+    transform: scale(0);
+  }
+
+  50% {
+    transform: translateY(-100%);
+    transform: scale(1);
+  }
+
+  100% {
+    transform: translateY(0%);
+    transform: scale(0);
+  }
+}
+
+div[data-score="scale"] {
+
+  animation: zoom 1s;
+
+}
+
+@keyframes zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.3);
   }
 }
