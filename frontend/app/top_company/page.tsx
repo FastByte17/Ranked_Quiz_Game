@@ -1,13 +1,14 @@
 'use client'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'
-import React, { MutableRefObject, useRef, useState } from 'react'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import useSWR from 'swr';
 import { fetcher } from '../fetcher';
 import { useScoreContext } from '../scoreProvider'
 import LoadingCircle from '../components/LoadingCircle';
 import Alert from '../components/Alert';
 import Loader from '../components/Loader';
+import CountUp from 'react-countup';
 
 export default function page() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
@@ -21,7 +22,14 @@ export default function page() {
     const rankView = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
     const scoreStyle = useRef() as MutableRefObject<HTMLDivElement>;
+    const [isVisible, setIsVisible] = useState(false);
     const router = useRouter()
+
+    useEffect(() => {
+        // Set initial visibility to false
+        setIsVisible(false);
+    }, []);
+
 
     if (isLoading) {
         return <LoadingCircle />;
@@ -34,16 +42,22 @@ export default function page() {
     const calculate = (answer: string) => {
         if (!state) return
 
+        setIsVisible(false); // Reset visibility before initiating count-up animation
+
+        setTimeout(() => {
+            setIsVisible(true); // Set visibility to true after a short delay
+        }, 30); // Adjust the delay time as needed
+
         leftContainer.current.dataset.slide = 'show';
         rightContainer.current.dataset.slide = 'show';
         voteButtons.current.style.visibility = 'hidden';
         rankView.current.style.visibility = 'visible';
 
-        if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
+        if (answer === 'higher' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
         }
-        else if (answer === 'lower' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
+        else if (answer === 'lower' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
         }
@@ -71,6 +85,12 @@ export default function page() {
             }, 1000)
 
         }, 1500)
+
+
+    }
+
+    const handleCountUpEnd = () => {
+        setIsVisible(false); // Reset visibility when count-up animation ends
     }
 
     if (!state) return null;
@@ -97,6 +117,8 @@ export default function page() {
                 <button className='rounded-md py-2 px-6 text-white text-xl font-semibold invisible'>
                     Next</button>
             </div>
+
+
             <div id="right-side" data-slide="show" ref={rightContainer}
                 className='bg-black h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
                 {state[currentIndex]?.imageExists && (
@@ -107,10 +129,17 @@ export default function page() {
                     />
                 )}
                 <h2
+                    key={state[currentIndex]?.rank} // Add key prop for re-render trigger
                     ref={rankView}
-                    className='text-2xl text-white font-bold'
+                    className={`text-2xl text-white font-bold ${isVisible ? 'visible' : 'invisible'}`}
                 >
-                    {state[currentIndex]?.rank}
+                    {/* {state[currentIndex]?.rank} */}
+                    <CountUp
+                        start={0} // initial value
+                        end={state[currentIndex]?.rank} // end value (dynamic based on your data)
+                        duration={1.5} // animation duration in seconds
+                        onEnd={handleCountUpEnd} // Callback when animation ends
+                    />
                 </h2>
                 <div className='text-xl text-white font-bold'>
                     {state[currentIndex]?.organizationName}
