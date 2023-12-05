@@ -41,7 +41,6 @@ body {
   width: 100px;
   aspect-ratio: 1/1;
   background-color: white;
-  text: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,6 +51,7 @@ body {
   top: 50%;
   transform: translateX(-50%);
   border-radius: 100%;
+  outline: 2px black solid;
   transition: all 0.5s ease-in-out;
 }
 

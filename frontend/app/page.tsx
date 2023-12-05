@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import { useScoreContext } from './scoreProvider'
 
 export default function Home() {
-  const { score, setScore } = useScoreContext()
+  const { score, setScore, highScore } = useScoreContext()
   const { current } = useRef('ranked');
   const hasPlayed = score > 0;
   return (
@@ -33,7 +33,8 @@ export default function Home() {
         </Link>
       </button>
       <div>
-        {hasPlayed && (<div>Total Points: {score}</div>)}
+        <div>Total Points: {score}</div>
+        <div>High Score: {highScore}</div>
       </div>
     </div>
   )

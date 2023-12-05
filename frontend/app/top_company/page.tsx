@@ -14,21 +14,15 @@ export default function page() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
         revalidateOnFocus: false
     });
-    const { score, setScore } = useScoreContext()
+    const { score, setScore, highScore, setHighScore } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
+    const [isVisible, setIsVisible] = useState(false);
     const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
     const rightContainer = useRef() as MutableRefObject<HTMLDivElement>;
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
-    const rankView = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
     const scoreStyle = useRef() as MutableRefObject<HTMLDivElement>;
-    const [isVisible, setIsVisible] = useState(false);
     const router = useRouter()
-
-    useEffect(() => {
-        // Set initial visibility to false
-        setIsVisible(false);
-    }, []);
 
 
     if (isLoading) {
@@ -40,24 +34,19 @@ export default function page() {
     }
 
     const calculate = (answer: string) => {
-        if (!state) return
-
-        setIsVisible(false); // Reset visibility before initiating count-up animation
-
-        setTimeout(() => {
-            setIsVisible(true); // Set visibility to true after a short delay
-        }, 30); // Adjust the delay time as needed
+        if (!state) return;
 
         leftContainer.current.dataset.slide = 'show';
         rightContainer.current.dataset.slide = 'show';
         voteButtons.current.style.visibility = 'hidden';
-        rankView.current.style.visibility = 'visible';
+        setIsVisible(true);
 
-        if (answer === 'higher' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
+        
+        if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
         }
-        else if (answer === 'lower' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
+        else if (answer === 'lower' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
         }
@@ -67,17 +56,27 @@ export default function page() {
         }
 
         setTimeout(() => {
+
             if (indicator.current.dataset.state === 'wrong') {
                 return router.push('/');
             }
             leftContainer.current.dataset.slide = 'slide';
             rightContainer.current.dataset.slide = 'slide';
-            rankView.current.style.visibility = 'hidden';
+            setIsVisible(false);
             setCurrentIndex((prev) => prev + 1);
             voteButtons.current.style.visibility = 'visible';
             indicator.current.dataset.state = 'pending';
             indicator.current.innerText = 'vs';
-            setScore((prev) => prev + 1);
+
+            setScore((prev) => {
+                const value = prev + 1
+                if ( value > highScore) {
+                    localStorage.setItem('highScore', value.toString());
+                    setHighScore(value)
+                }
+                return value
+            });
+            
             scoreStyle.current.dataset.score = 'scale';
 
             setTimeout(() => {
@@ -89,9 +88,6 @@ export default function page() {
 
     }
 
-    const handleCountUpEnd = () => {
-        setIsVisible(false); // Reset visibility when count-up animation ends
-    }
 
     if (!state) return null;
 
@@ -128,19 +124,15 @@ export default function page() {
                         className='flex mt-14'
                     />
                 )}
-                <h2
-                    key={state[currentIndex]?.rank} // Add key prop for re-render trigger
-                    ref={rankView}
-                    className={`text-2xl text-white font-bold ${isVisible ? 'visible' : 'invisible'}`}
+               
+                <div
+                    className={`text-2xl text-white font-bold ${!isVisible && 'pt-8'}`}
                 >
-                    {/* {state[currentIndex]?.rank} */}
-                    <CountUp
-                        start={0} // initial value
+                    {isVisible && <CountUp
                         end={state[currentIndex]?.rank} // end value (dynamic based on your data)
-                        duration={1.5} // animation duration in seconds
-                        onEnd={handleCountUpEnd} // Callback when animation ends
-                    />
-                </h2>
+                        duration={.6} // animation duration in seconds
+                    />}
+                </div>
                 <div className='text-xl text-white font-bold'>
                     {state[currentIndex]?.organizationName}
                 </div>
