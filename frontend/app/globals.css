@@ -127,3 +127,47 @@ div[data-score="scale"] {
     transform: scale(1.3);
   }
 }
+
+.timer-container {
+  position: relative;
+  width: 100px;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  border-radius: 100%;
+  outline: 2px black solid;
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
+}
+
+.timer-animation {
+  font-size: 2rem;
+  opacity: 0;
+  animation: countdown-animation 1s ease-in-out forwards;
+}
+
+.countdown-number {
+  font-size: 2rem;
+  opacity: 0;
+  animation: countdown-animation 1s ease-in-out forwards;
+}
+
+@keyframes countdown-animation {
+  to {
+    opacity: 1;
+  }
+}
+
+.timer {
+  z-index: 1;
+}
+
+/* Additional styles for when the timer expires */
+.timer[data-expired='true'] {
+  color: red;
+  /* Change color as needed */
+}

@@ -10,7 +10,7 @@ import Alert from '../components/Alert';
 import Loader from '../components/Loader';
 import CountUp from 'react-countup';
 
-export default function page() {
+export default function TopCompany({ timerDuration }: { timerDuration: number }) {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
         revalidateOnFocus: false
     });
@@ -22,7 +22,51 @@ export default function page() {
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
     const scoreStyle = useRef() as MutableRefObject<HTMLDivElement>;
+    const [timer, setTimer] = useState(timerDuration);
     const router = useRouter()
+
+    useEffect(() => {
+        let countdown: NodeJS.Timeout;
+
+        const startTimer = () => {
+            countdown = setInterval(() => {
+                setTimer((prev) => Math.max(0, prev - 1));
+            }, 1000);
+        };
+
+        const resetTimer = () => {
+            clearInterval(countdown);
+            setTimer(timerDuration);
+        };
+
+        const handleTimerExpiration = () => {
+            resetTimer();
+            router.push('/');
+        };
+
+        if (isVisible) {
+            resetTimer(); // Reset the timer when component re-renders
+            startTimer();
+        } else {
+            resetTimer();
+        }
+
+        if (timer === 0) {
+            handleTimerExpiration();
+        }
+
+        return () => {
+            clearInterval(countdown);
+        };
+    }, [isVisible, router, timerDuration]);
+
+    /* const renderCountdown = () => {
+        return (
+            <div className='timer-animation'>
+                {timer > 0 ? timer : 'Time expired'}
+            </div>
+        );
+    }; */
 
 
     if (isLoading) {
@@ -41,7 +85,7 @@ export default function page() {
         voteButtons.current.style.visibility = 'hidden';
         setIsVisible(true);
 
-        
+
         if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
@@ -70,13 +114,13 @@ export default function page() {
 
             setScore((prev) => {
                 const value = prev + 1
-                if ( value > highScore) {
+                if (value > highScore) {
                     localStorage.setItem('highScore', value.toString());
                     setHighScore(value)
                 }
                 return value
             });
-            
+
             scoreStyle.current.dataset.score = 'scale';
 
             setTimeout(() => {
@@ -94,7 +138,9 @@ export default function page() {
     return (
         <div className='h-screen flex overflow-hidden bg-gray-700'>
             <div className='indicator' ref={indicator} data-state="pending">
-                VS
+                <div className='timer-container'>
+                    <div className='timer-animation'>{timer > 0 ? timer : 'Time expired'}</div>
+                </div>
             </div>
             <div id="left-side" data-slide="show" ref={leftContainer}
                 className='bg-gray-700 h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
@@ -124,7 +170,7 @@ export default function page() {
                         className='flex mt-14'
                     />
                 )}
-               
+
                 <div
                     className={`text-2xl text-white font-bold ${!isVisible && 'pt-8'}`}
                 >
