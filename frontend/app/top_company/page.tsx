@@ -1,20 +1,20 @@
 'use client'
-import Link from 'next/link';
-import { useRouter } from 'next/navigation'
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { MutableRefObject, useRef, useState } from 'react'
 import useSWR from 'swr';
 import { fetcher } from '../fetcher';
 import { useScoreContext } from '../scoreProvider'
 import LoadingCircle from '../components/LoadingCircle';
 import Alert from '../components/Alert';
-import Loader from '../components/Loader';
+//import Loader from '../components/Loader';
 import CountUp from 'react-countup';
+import Indicator from '../components/Indicator';
 
-export default function TopCompany({ timerDuration }: { timerDuration: number }) {
+export default function TopCompany() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
         revalidateOnFocus: false
     });
-    const { score, setScore, highScore, setHighScore } = useScoreContext()
+    const { score, setScore, highScore, setHighScore, setIsCorrect } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
     const [isVisible, setIsVisible] = useState(false);
     const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
@@ -22,51 +22,10 @@ export default function TopCompany({ timerDuration }: { timerDuration: number })
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
     const indicator = useRef() as MutableRefObject<HTMLDivElement>;
     const scoreStyle = useRef() as MutableRefObject<HTMLDivElement>;
-    const [timer, setTimer] = useState(timerDuration);
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const clockMode = searchParams.get('name')
 
-    useEffect(() => {
-        let countdown: NodeJS.Timeout;
-
-        const startTimer = () => {
-            countdown = setInterval(() => {
-                setTimer((prev) => Math.max(0, prev - 1));
-            }, 1000);
-        };
-
-        const resetTimer = () => {
-            clearInterval(countdown);
-            setTimer(timerDuration);
-        };
-
-        const handleTimerExpiration = () => {
-            resetTimer();
-            router.push('/');
-        };
-
-        if (isVisible) {
-            resetTimer(); // Reset the timer when component re-renders
-            startTimer();
-        } else {
-            resetTimer();
-        }
-
-        if (timer === 0) {
-            handleTimerExpiration();
-        }
-
-        return () => {
-            clearInterval(countdown);
-        };
-    }, [isVisible, router, timerDuration]);
-
-    /* const renderCountdown = () => {
-        return (
-            <div className='timer-animation'>
-                {timer > 0 ? timer : 'Time expired'}
-            </div>
-        );
-    }; */
 
 
     if (isLoading) {
@@ -89,10 +48,12 @@ export default function TopCompany({ timerDuration }: { timerDuration: number })
         if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
+            setIsCorrect(true)
         }
         else if (answer === 'lower' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
             indicator.current.innerText = '👍';
+            setIsCorrect(true)
         }
         else {
             indicator.current.dataset.state = 'wrong';
@@ -135,13 +96,16 @@ export default function TopCompany({ timerDuration }: { timerDuration: number })
 
     if (!state) return null;
 
+
     return (
         <div className='h-screen flex overflow-hidden bg-gray-700'>
-            <div className='indicator' ref={indicator} data-state="pending">
-                <div className='timer-container'>
-                    <div className='timer-animation'>{timer > 0 ? timer : 'Time expired'}</div>
-                </div>
-            </div>
+            {clockMode ? (
+                <Indicator indicate={indicator} />
+            ) :
+                (<div className='indicator' ref={indicator}>
+                    VS
+                </div>)
+            }
             <div id="left-side" data-slide="show" ref={leftContainer}
                 className='bg-gray-700 h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
                 {state[currentIndex - 1]?.imageExists && (
@@ -197,6 +161,6 @@ export default function TopCompany({ timerDuration }: { timerDuration: number })
                     Score: {score}
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

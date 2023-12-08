@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRef } from 'react';
 import { useScoreContext } from './scoreProvider'
@@ -35,8 +34,11 @@ export default function Home() {
       <button type='button' className='capitalize py-2.5 px-5 mr-2 mb-2 text-2xl font-bold
        tracking-wide text-black focus:outline-none bg-transparent rounded-lg border border-black
         hover:bg-blue-500 focus:z-10 focus:ring-1 focus:ring-black-200'>
-          <Link href={'/beat_the_clock'}>Beat The Clock!</Link>
-        </button>
+        <Link href={{
+          pathname: '/top_company',
+          query: { name: 'beat_the_clock' },
+        }}>Beat The Clock!</Link>
+      </button>
       <div>
         <div>Total Points: {score}</div>
         <div>High Score: {highScore}</div>
