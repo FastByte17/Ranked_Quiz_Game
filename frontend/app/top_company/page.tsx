@@ -14,7 +14,7 @@ export default function TopCompany() {
     const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
         revalidateOnFocus: false
     });
-    const { score, setScore, highScore, setHighScore, setIsCorrect } = useScoreContext()
+    const { score, setScore, highScore, setHighScore } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
     const [isVisible, setIsVisible] = useState(false);
     const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
@@ -25,6 +25,7 @@ export default function TopCompany() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const clockMode = searchParams.get('name')
+
 
 
 
@@ -47,23 +48,21 @@ export default function TopCompany() {
 
         if (answer === 'higher' && state[currentIndex - 1]?.rank > state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
-            indicator.current.innerText = '👍';
-            setIsCorrect(true)
+            if (!clockMode) indicator.current.innerText = '👍';
         }
         else if (answer === 'lower' && state[currentIndex - 1]?.rank < state[currentIndex]?.rank) {
             indicator.current.dataset.state = 'correct';
-            indicator.current.innerText = '👍';
-            setIsCorrect(true)
+            if (!clockMode) indicator.current.innerText = '👍';
         }
         else {
             indicator.current.dataset.state = 'wrong';
-            indicator.current.innerText = '👎';
+            if (!clockMode) indicator.current.innerText = '👎';
         }
 
         setTimeout(() => {
 
             if (indicator.current.dataset.state === 'wrong') {
-                return router.push('/');
+                return router.push('/')
             }
             leftContainer.current.dataset.slide = 'slide';
             rightContainer.current.dataset.slide = 'slide';
@@ -71,7 +70,7 @@ export default function TopCompany() {
             setCurrentIndex((prev) => prev + 1);
             voteButtons.current.style.visibility = 'visible';
             indicator.current.dataset.state = 'pending';
-            indicator.current.innerText = 'vs';
+            if (!clockMode) indicator.current.innerText = 'vs';
 
             setScore((prev) => {
                 const value = prev + 1
@@ -102,7 +101,7 @@ export default function TopCompany() {
             {clockMode ? (
                 <Indicator indicate={indicator} />
             ) :
-                (<div className='indicator' ref={indicator}>
+                (<div className='indicator' ref={indicator} >
                     VS
                 </div>)
             }

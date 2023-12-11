@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { Company } from '../../types'
 
 
 export async function GET(request: NextRequest,) {
@@ -29,5 +30,5 @@ export async function GET(request: NextRequest,) {
     const data = await result.json()
 
 
-    return NextResponse.json({ data: data.organizationList.organizationsLists }, { status: 200 })
+    return NextResponse.json({ data: data.organizationList.organizationsLists.filter((org: Company) => org.organizationName !== "BHP Group Ltd") }, { status: 200 })
 }

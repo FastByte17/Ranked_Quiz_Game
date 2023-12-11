@@ -1,3 +1,5 @@
+import { Companies } from "./types";
+
 export const fetcher = async (url: string, limit = 100) => {
     try {
         const companies = localStorage.getItem('companies')
@@ -16,15 +18,7 @@ export const fetcher = async (url: string, limit = 100) => {
     }
 };
 
-type Company = {
-    imageExists: boolean
-    image: string
-    description: string
-    rank: number
-    organizationName: string
-}
 
-type Companies = Company[]
 
 function shuffle(array: Companies) {
     for (let i = array.length - 1; i > 0; i--) {

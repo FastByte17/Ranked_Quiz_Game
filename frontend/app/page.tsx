@@ -37,7 +37,7 @@ export default function Home() {
         <Link href={{
           pathname: '/top_company',
           query: { name: 'beat_the_clock' },
-        }}>Beat The Clock!</Link>
+        }} onClick={() => setScore(0)}>Beat The Clock!</Link>
       </button>
       <div>
         <div>Total Points: {score}</div>

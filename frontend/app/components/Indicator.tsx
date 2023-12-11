@@ -1,6 +1,5 @@
 'use client'
 import React, { MutableRefObject, useRef, useState, useEffect, useCallback } from 'react'
-import { useScoreContext } from '../scoreProvider'
 import { useRouter } from 'next/navigation'
 
 type Props = {
@@ -9,23 +8,24 @@ type Props = {
 
 export default function Indicator({ indicate }: Props) {
     const [isCounting, setisCounting] = useState(true)
-    const { isCorrect } = useScoreContext()
-    const router = useRouter()
     const secondsLabel = useRef() as MutableRefObject<HTMLLabelElement>;
-    const totalSeconds = useRef(4)
+    const totalSeconds = useRef(10)
+    const router = useRouter()
 
 
 
     const count = useCallback(() => {
         const id: NodeJS.Timeout = setInterval(() => {
-            if (totalSeconds.current === 0) {
+            if (totalSeconds.current === 0 || indicate.current.dataset.state === 'wrong') {
                 setisCounting(false)
-                console.log(isCorrect)
-                if (!isCorrect) {
-                    clearInterval(id);
+                if (!indicate.current.dataset.state || indicate.current.dataset.state === 'pending') {
+                    clearInterval(id)
                     return router.push('/');
                 }
-                return clearInterval(id);
+                return clearInterval(id)
+
+            } else if (indicate.current.dataset.state === 'correct') {
+                return totalSeconds.current = 10
             }
             totalSeconds.current -= 1;
             secondsLabel.current.innerHTML = totalSeconds.current.toString();
@@ -41,12 +41,17 @@ export default function Indicator({ indicate }: Props) {
         return cleanup;
     }, [count]);
 
+
     return (
         <div>
             <div className='indicator' ref={indicate}>
-                <div className="text-dark text-4xl">
-                    <label ref={secondsLabel}>{totalSeconds.current}</label>
-                </div>
+                {indicate.current?.dataset?.state === 'correct' ? '👍' :
+                    indicate.current?.dataset?.state === 'wrong' ? '👎' :
+                        (
+                            <div className="text-dark text-4xl">
+                                <label ref={secondsLabel}>{totalSeconds.current}</label>
+                            </div>
+                        )}
             </div>
         </div>
     )
