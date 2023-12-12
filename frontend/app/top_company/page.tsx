@@ -11,7 +11,7 @@ import CountUp from 'react-countup';
 import Indicator from '../components/Indicator';
 
 export default function TopCompany() {
-    const { data: state, isLoading, error } = useSWR('/api/companies/', fetcher, {
+    const { data: state, isLoading, error } = useSWR(process.env.NEXT_PUBLIC_BASE_URL, fetcher, {
         revalidateOnFocus: false
     });
     const { score, setScore, highScore, setHighScore } = useScoreContext()
@@ -25,7 +25,6 @@ export default function TopCompany() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const clockMode = searchParams.get('name')
-
 
 
 
