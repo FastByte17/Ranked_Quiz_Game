@@ -9,6 +9,7 @@ import Alert from '../components/Alert';
 //import Loader from '../components/Loader';
 import CountUp from 'react-countup';
 import Indicator from '../components/Indicator';
+import ImageDescription from '../components/ImageDescription';
 
 export default function TopCompany() {
     const { data: state, isLoading, error } = useSWR(process.env.NEXT_PUBLIC_BASE_URL, fetcher, {
@@ -17,6 +18,7 @@ export default function TopCompany() {
     const { score, setScore, highScore, setHighScore } = useScoreContext()
     const [currentIndex, setCurrentIndex] = useState(1);
     const [isVisible, setIsVisible] = useState(false);
+    const [modalOpenArray, setModalOpenArray] = useState<boolean[]>(Array(state?.length || 0).fill(false));
     const leftContainer = useRef() as MutableRefObject<HTMLDivElement>;
     const rightContainer = useRef() as MutableRefObject<HTMLDivElement>;
     const voteButtons = useRef() as MutableRefObject<HTMLDivElement>;
@@ -25,6 +27,14 @@ export default function TopCompany() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const clockMode = searchParams.get('name')
+
+    const toggleModal = (index: number) => {
+        setModalOpenArray((prev) => {
+            const newArray = [...prev];
+            newArray[index] = !newArray[index];
+            return newArray;
+        });
+    };
 
 
 
@@ -105,12 +115,14 @@ export default function TopCompany() {
                 </div>)
             }
             <div id="left-side" data-slide="show" ref={leftContainer}
-                className='bg-gray-700 h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
+                className='bg-gray-700 h-full flex flex-col justify-center items-center basis-1/2 gap-2'
+            >
                 {state[currentIndex - 1]?.imageExists && (
                     <img
                         src={state[currentIndex - 1].image}
                         alt={state[currentIndex - 1].description}
                         className='flex mt-1'
+                        onClick={() => toggleModal(currentIndex - 1)}
                     />)}
                 <h2 className='font-bold text-white text-2xl'>
                     {state[currentIndex - 1]?.rank}
@@ -122,14 +134,20 @@ export default function TopCompany() {
                     Next</button>
             </div>
 
+            <ImageDescription isOpen={modalOpenArray[currentIndex - 1]} onClose={() => toggleModal(currentIndex - 1)}>
+                <h1 className='text-2xl'>{state[currentIndex - 1]?.organizationName}</h1>
+                <p>{state[currentIndex - 1].description}</p>
+            </ImageDescription>
 
             <div id="right-side" data-slide="show" ref={rightContainer}
-                className='bg-black h-full flex flex-col justify-center items-center basis-1/2 gap-2'>
+                className='bg-black h-full flex flex-col justify-center items-center basis-1/2 gap-2'
+            >
                 {state[currentIndex]?.imageExists && (
                     <img
                         src={state[currentIndex].image}
                         alt={state[currentIndex].description}
                         className='flex mt-14'
+                        onClick={() => toggleModal(currentIndex)}
                     />
                 )}
 
@@ -159,6 +177,12 @@ export default function TopCompany() {
                     Score: {score}
                 </div>
             </div>
+
+            <ImageDescription isOpen={modalOpenArray[currentIndex]} onClose={() => toggleModal(currentIndex)}>
+                <h1 className='text-2xl'>{state[currentIndex]?.organizationName}</h1>
+                <p>{state[currentIndex]?.description}</p>
+            </ImageDescription>
+
         </div >
     )
 }
